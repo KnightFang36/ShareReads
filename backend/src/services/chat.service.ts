@@ -17,6 +17,17 @@ export const chatService = {
     return prisma.chat.create({
       data: { requestId },
       include: {
+        messages: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            sender: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
         request: {
           include: {
             bookCopy: {
@@ -151,8 +162,18 @@ export const chatService = {
 
   /**
    * Send a message in a chat
+   * Accepts either an object or individual parameters
    */
-  async sendMessage(data: CreateMessageInput) {
+  async sendMessage(
+    chatIdOrData: string | CreateMessageInput,
+    senderId?: string,
+    content?: string
+  ) {
+    const data: CreateMessageInput =
+      typeof chatIdOrData === "string"
+        ? { chatId: chatIdOrData, senderId: senderId!, content: content! }
+        : chatIdOrData;
+
     return prisma.message.create({
       data,
       include: {
@@ -208,5 +229,53 @@ export const chatService = {
     return prisma.message.delete({
       where: { id },
     });
+  },
+
+  /**
+   * Get or create chat for a borrow request
+   */
+  async getOrCreateChat(requestId: string) {
+    let chat = await this.findByRequestId(requestId);
+
+    if (!chat) {
+      chat = await this.create(requestId);
+    }
+
+    return chat;
+  },
+
+  /**
+   * Check if user has access to chat by request ID
+   */
+  async userHasAccessByRequestId(requestId: string, userId: string) {
+    const request = await prisma.borrowRequest.findUnique({
+      where: { id: requestId },
+      include: { bookCopy: true },
+    });
+
+    if (!request) return false;
+
+    return request.borrowerId === userId || request.bookCopy.ownerId === userId;
+  },
+
+  /**
+   * Check if user has access to chat by chat ID
+   */
+  async userHasAccess(chatId: string, userId: string) {
+    const chat = await prisma.chat.findUnique({
+      where: { id: chatId },
+      include: {
+        request: {
+          include: { bookCopy: true },
+        },
+      },
+    });
+
+    if (!chat) return false;
+
+    return (
+      chat.request.borrowerId === userId ||
+      chat.request.bookCopy.ownerId === userId
+    );
   },
 };

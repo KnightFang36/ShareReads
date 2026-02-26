@@ -7,6 +7,7 @@ import genreRoutes from "./genre.routes";
 import bookRoutes from "./book.routes";
 import bookCopyRoutes from "./bookCopy.routes";
 import borrowRequestRoutes from "./borrowRequest.routes";
+import chatRoutes from "./chat.routes";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/genres", genreRoutes);
 router.use("/books", bookRoutes);
 router.use("/copies", bookCopyRoutes);
 router.use("/requests", borrowRequestRoutes);
+router.use("/chats", chatRoutes);
 
 export default router;
