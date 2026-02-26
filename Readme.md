@@ -87,30 +87,33 @@ Pending → Approved → Borrowed → Returned
 ## Project Structure
 
 ### Backend
+```
 src/
-├── controllers
-├── routes
-├── middleware
-├── services
-├── sockets
-├── prisma
-└── utils
-
+├── controllers/
+├── routes/
+├── middleware/
+├── services/
+├── sockets/
+├── prisma/
+└── utils/
+```
 
 ### Frontend
+```
 app/
-├── auth
-├── dashboard
-├── books
-├── circles
-└── profile
+├── auth/
+├── dashboard/
+├── books/
+├── circles/
+└── profile/
 
 components/
-├── layout
-├── book
-├── chat
-├── circle
-└── ui
+├── layout/
+├── book/
+├── chat/
+├── circle/
+└── ui/
+```
 
 
 ---
