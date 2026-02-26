@@ -239,6 +239,14 @@ export const circleService = {
         },
       },
       data: { progress },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   },
 
@@ -328,6 +336,43 @@ export const circleService = {
   async delete(id: string) {
     return prisma.readingCircle.delete({
       where: { id },
+    });
+  },
+
+  /**
+   * Check if user is a member of a circle
+   */
+  async isMember(circleId: string, userId: string) {
+    const member = await prisma.circleMember.findUnique({
+      where: {
+        circleId_userId: {
+          circleId,
+          userId,
+        },
+      },
+    });
+    return !!member;
+  },
+
+  /**
+   * Get member info
+   */
+  async getMember(circleId: string, userId: string) {
+    return prisma.circleMember.findUnique({
+      where: {
+        circleId_userId: {
+          circleId,
+          userId,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   },
 };
