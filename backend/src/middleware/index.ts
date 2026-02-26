@@ -1,4 +1,4 @@
 // Middleware - Request processing middleware
 // Auth middleware, validation, error handling, etc.
 
-export {};
+export * from "./auth.middleware";

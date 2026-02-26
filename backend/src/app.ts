@@ -1,6 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import routes from "./routes";
 
 // Load environment variables
 dotenv.config();
@@ -31,13 +32,8 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// API Routes (to be added)
-// app.use("/api/auth", authRoutes);
-// app.use("/api/books", bookRoutes);
-// app.use("/api/genres", genreRoutes);
-// app.use("/api/borrow", borrowRoutes);
-// app.use("/api/circles", circleRoutes);
-// app.use("/api/users", userRoutes);
+// API Routes
+app.use("/api", routes);
 
 // 404 Handler
 app.use((req: Request, res: Response) => {

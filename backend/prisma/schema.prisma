@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookCondition {
+  NEW
+  GOOD
+  WORN
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  REQUESTED
+  BORROWED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  BORROWED
+  RETURNED
+  REJECTED
+}
+
+model User {
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  password         String
+  bio              String?
+  location         String?
+  createdAt        DateTime @default(now())
+
+  booksOwned       BookCopy[]       @relation("OwnerBooks")
+  borrowRequests   BorrowRequest[]  @relation("BorrowerRequests")
+  circleMembership CircleMember[]
+  messages         Message[]
+  circleMessages   CircleMessage[]
+}
+
+model Book {
+  id            String   @id @default(uuid())
+  title         String
+  author        String
+  description   String
+  coverImageUrl String?
+  averageRating Float?   @default(0)
+  createdAt     DateTime @default(now())
+
+  genres        BookGenre[]
+  copies        BookCopy[]
+  circles       ReadingCircle[]
+}
+
+model Genre {
+  id        String      @id @default(uuid())
+  name      String      @unique
+  books     BookGenre[]
+}
+
+model BookGenre {
+  id      String @id @default(uuid())
+  bookId  String
+  genreId String
+
+  book    Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, genreId])
+}
+
+model BookCopy {
+  id                  String              @id @default(uuid())
+  bookId              String
+  ownerId             String
+  condition           BookCondition
+  availabilityStatus  AvailabilityStatus  @default(AVAILABLE)
+  location            String
+  currentBorrowerId   String?
+  dueDate             DateTime?
+  createdAt           DateTime            @default(now())
+
+  book                Book                @relation(fields: [bookId], references: [id])
+  owner               User                @relation("OwnerBooks", fields: [ownerId], references: [id])
+  borrowRequests      BorrowRequest[]
+}
+
+model BorrowRequest {
+  id          String        @id @default(uuid())
+  bookCopyId  String
+  borrowerId  String
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+  bookCopy    BookCopy      @relation(fields: [bookCopyId], references: [id])
+  borrower    User          @relation("BorrowerRequests", fields: [borrowerId], references: [id])
+  chat        Chat?
+}
+
+model Chat {
+  id          String        @id @default(uuid())
+  requestId   String        @unique
+  createdAt   DateTime      @default(now())
+
+  request     BorrowRequest @relation(fields: [requestId], references: [id])
+  messages    Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id])
+}
+
+model ReadingCircle {
+  id          String          @id @default(uuid())
+  name        String
+  bookId      String
+  createdAt   DateTime        @default(now())
+
+  book        Book            @relation(fields: [bookId], references: [id])
+  members     CircleMember[]
+  messages    CircleMessage[]
+}
+
+model CircleMember {
+  id          String   @id @default(uuid())
+  circleId    String
+  userId      String
+  progress    Float    @default(0)
+
+  circle      ReadingCircle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@unique([circleId, userId])
+}
+
+model CircleMessage {
+  id        String   @id @default(uuid())
+  circleId  String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  circle    ReadingCircle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  sender    User          @relation(fields: [senderId], references: [id])
+}

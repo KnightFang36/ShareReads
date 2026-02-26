@@ -1,4 +1,4 @@
 // Controllers - Handle request/response logic
 // Each controller will handle specific API operations
 
-export {};
+export * from "./auth.controller";
