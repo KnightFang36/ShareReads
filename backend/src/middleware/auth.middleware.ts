@@ -10,6 +10,11 @@ declare global {
   }
 }
 
+// Export for use in controllers
+export interface AuthRequest extends Request {
+  user?: TokenPayload;
+}
+
 /**
  * Authentication middleware
  * Validates JWT token from Authorization header
